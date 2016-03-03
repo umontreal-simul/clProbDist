@@ -1,0 +1,88 @@
+/* This file is part of clProbDist.
+ *
+ * Copyright 2015-2016  Pierre L'Ecuyer, Universite de Montreal and Advanced Micro Devices, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ *
+ *   David Munger <mungerd@iro.umontreal.ca>        (2015)
+ *   Nabil Kemerchou <kemerchn@iro.umontreal.ca>    (2015)
+ *   Pierre L'Ecuyer <lecuyer@iro.umontreal.ca>     (2015)
+ *
+ */
+
+/*! @file clProbDist.clh
+ *  @brief Common definitions for the device-side API of clProbDist
+ */
+
+#pragma once
+#ifndef CLPROBDIST_CLH
+#define CLPROBDIST_CLH
+
+#ifndef __OPENCL_C_VERSION__
+#error "clProbDist/clProbDist.clh can be included in device code only"
+#endif
+
+typedef double      cl_double;
+typedef float       cl_float;
+typedef int         cl_int;
+typedef uint        cl_uint;
+typedef long        cl_long;
+typedef ulong       cl_ulong;
+typedef bool        cl_bool;
+#define CL_TRUE     true
+#define CL_FALSE    false
+
+
+#ifdef CLPROBDIST_SINGLE_PRECISION
+#error "CLPROBDIST_SINGLE_PRECISION option not yet implemented"
+#endif
+
+typedef enum clprobdistStatus_ {
+        CLPROBDIST_SUCCESS = 0,
+        CLPROBDIST_INVALID_VALUE = -1
+} clprobdistStatus;
+
+/*! @cond PRIVATE
+ *  @brief Convenience macro
+ *
+ *  This macro does nothing.
+ *  It is defined for convenience when adapting host code for the device.
+ */
+#define clprobdistSetErrorString(err, ...) (err)
+/*! @endcond
+ */
+
+/*! @name Memory types
+ *  @{
+ */
+/*! @brief Constant for private memory
+ */
+#define CLPROBDIST_MEM_TYPE_PRIVATE     100
+/*! @brief Constant for local memory
+ */
+#define CLPROBDIST_MEM_TYPE_LOCAL       200
+/*! @brief Constant for constant memory
+ */
+#define CLPROBDIST_MEM_TYPE_CONSTANT    300
+/*! @brief Constant for global memory
+ */
+#define CLPROBDIST_MEM_TYPE_GLOBAL      400
+/*! @} */
+
+#endif
+
+/*
+vim: ft=c.doxygen sw=4
+*/

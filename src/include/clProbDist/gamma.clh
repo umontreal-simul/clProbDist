@@ -1,0 +1,246 @@
+/* This file is part of clProbDist.
+ *
+ * Copyright 2015-2016  Pierre L'Ecuyer, Universite de Montreal and Advanced Micro Devices, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ *
+ *   Nabil Kemerchou <kemerchn@iro.umontreal.ca>    (2015)
+ *   David Munger <mungerd@iro.umontreal.ca>        (2015)
+ *   Pierre L'Ecuyer <lecuyer@iro.umontreal.ca>     (2015)
+ *
+ */
+
+/*! @file gamma.clh
+ *  @brief Device-side API for the gamma distribution
+ *
+ *  In the function declarations of this file, the preprocessor symbol
+ *  _CLPROBDIST_GAMMA_OBJ_MEM expands to the selected memory type for
+ *  this distribution type.
+ */
+
+#pragma once
+#ifndef GAMMADIST_CLH
+#define GAMMADIST_CLH
+
+#include "clProbDist.clh"
+#include "exponential.clh"
+#include "normal.clh"
+
+#ifndef CLPROBDIST_GAMMA_OBJ_MEM
+/*! @brief Type of memory to store gamma distribution objects
+ *
+ *  Defaults to @ref CLPROBDIST_MEM_TYPE_GLOBAL.
+ *
+ *  @see CLPROBDIST_MEM_TYPE_PRIVATE CLPROBDIST_MEM_TYPE_LOCAL CLPROBDIST_MEM_TYPE_CONSTANT CLPROBDIST_MEM_TYPE_GLOBAL.
+ */
+#define CLPROBDIST_GAMMA_OBJ_MEM CLPROBDIST_MEM_TYPE_GLOBAL
+#endif
+
+#if CLPROBDIST_GAMMA_OBJ_MEM == CLPROBDIST_MEM_TYPE_PRIVATE
+  #define _CLPROBDIST_GAMMA_OBJ_MEM
+#elif CLPROBDIST_GAMMA_OBJ_MEM == CLPROBDIST_MEM_TYPE_LOCAL
+  #define _CLPROBDIST_GAMMA_OBJ_MEM __local
+#elif CLPROBDIST_GAMMA_OBJ_MEM == CLPROBDIST_MEM_TYPE_GLOBAL
+  #define _CLPROBDIST_GAMMA_OBJ_MEM __global
+#elif CLPROBDIST_GAMMA_OBJ_MEM == CLPROBDIST_MEM_TYPE_CONSTANT
+  #define _CLPROBDIST_GAMMA_OBJ_MEM __constant
+#else
+  #error Invalid value for CLPROBDIST_GAMMA_OBJ_MEM
+#endif
+
+/*! @brief Gamma distribution object [**device**]
+ *
+ *  A structure that represents a gamma distribution object.
+ */
+typedef struct _clprobdistGamma clprobdistGamma;
+
+/*! @name Functions for use with explicit distribution parameters
+ *
+ *  @{
+ */
+
+/*! @copydoc clprobdistDensityWithObject()
+ */
+double clprobdistGammaDensityWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* dist, double x, clprobdistStatus* err);
+
+/*! @copydoc clprobdistCDFWithObject()
+ */
+double clprobdistGammaCDFWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* dist, double x, clprobdistStatus* err);
+
+/*! @copydoc clprobdistComplCDFWithObject()
+ */
+double clprobdistGammaComplCDFWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* dist, double x, clprobdistStatus* err);
+
+/*! @copydoc clprobdistInverseCDFWithObject()
+ */
+double clprobdistGammaInverseCDFWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* dist, double u, clprobdistStatus* err);
+
+/*! @copydoc clprobdistMeanWithObject()
+ */
+double clprobdistGammaMeanWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* dist, clprobdistStatus* err);
+
+/*! @copydoc clprobdistVarianceWithObject()
+ */
+double clprobdistGammaVarianceWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* dist, clprobdistStatus* err);
+
+/*! @copydoc clprobdistStdDeviationWithObject()
+ */
+double clprobdistGammaStdDeviationWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* dist, clprobdistStatus* err);
+
+/*! @brief Return the shape parameter of the distribution  [**device**]
+ *
+ *  @param[in]  dist    Distribution object.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return Value of the shape parameter \f$\alpha\f$.
+ */
+double clprobdistGammaGetAlpha(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* dist, clprobdistStatus* err);
+
+/*! @brief Return the scale parameter of the distribution  [**device**]
+ *
+ *  @param[in]  dist    Distribution object.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return Value of the scale parameter \f$\lambda\f$.
+ */
+double clprobdistGammaGetLambda(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* dist, clprobdistStatus* err);
+
+/*! @} */
+
+
+
+
+/*! @name Functions for use with explicit distribution parameters
+ *
+ *  @{
+ */
+
+/*! @brief @copybrief clprobdistDensity()
+ *
+ *  @see clprobdistGammaDensityWithObject()
+ *
+ *  @param[in]  alpha   Value of the shape parameter \f$\alpha\f$.
+ *  @param[in]  lambda  Value of the scale parameter \f$\lambda\f$.
+ *  @param[in]  decprec This parameter is unused but present for uniformity.
+ *  @param[in]  x       Value of \f$x\f$.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Value of \f$f(x)\f$.
+ */
+double clprobdistGammaDensity(double alpha, double lambda, int decprec, double x, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistCDF()
+ *
+ *  @see clprobdistGammaCDFWithObject()
+ *
+ *  @param[in]  alpha   Value of the shape parameter \f$\alpha\f$.
+ *  @param[in]  lambda  Value of the scale parameter \f$\lambda\f$.
+ *  @param[in]  decprec Value of \f$d\f$.
+ *  @param[in]  x       Value of \f$x\f$.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Value of \f$F(x)\f$.
+ */
+double clprobdistGammaCDF(double alpha, double lambda, int decprec, double x, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistComplCDF()
+ *
+ *  @see clprobdistGammaComplCDFWithObject()
+ *
+ *  @param[in]  alpha   Value of the shape parameter \f$\alpha\f$.
+ *  @param[in]  lambda  Value of the scale parameter \f$\lambda\f$.
+ *  @param[in]  decprec Value of \f$d\f$.
+ *  @param[in]  x       Value of \f$x\f$.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Value of \f$\bar F(x)\f$.
+ */
+double clprobdistGammaComplCDF(double alpha, double lambda, int decprec, double x, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistInverseCDF()
+ *
+ *  @see clprobdistGammaInverseCDFWithObject()
+ *
+ *  @param[in]  alpha   Value of the shape parameter \f$\alpha\f$.
+ *  @param[in]  lambda  Value of the scale parameter \f$\lambda\f$.
+ *  @param[in]  decprec Value of \f$d\f$.
+ *  @param[in]  u       Value of \f$u \in [0,1]\f$.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Value of \f$F^{-1}(u)\f$.
+ */
+double clprobdistGammaInverseCDF(double alpha, double lambda, int decprec, double u, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistMean()
+ *
+ *  @see clprobdistGammaMeanWithObject()
+ *
+ *  @param[in]  alpha   Value of the shape parameter \f$\alpha\f$.
+ *  @param[in]  lambda  Value of the scale parameter \f$\lambda\f$.
+ *  @param[in]  decprec This parameter is unused but present for uniformity.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Mean of the distribution.
+ */
+double clprobdistGammaMean(double alpha, double lambda, int decprec, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistVariance()
+ *
+ *  @see clprobdistGammaVarianceWithObject()
+ *
+ *  @param[in]  alpha   Value of the shape parameter \f$\alpha\f$.
+ *  @param[in]  lambda  Value of the scale parameter \f$\lambda\f$.
+ *  @param[in]  decprec This parameter is unused but present for uniformity.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Variance of the distribution.
+ */
+double clprobdistGammaVariance(double alpha, double lambda, int decprec, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistStdDeviation()
+ *
+ *  @see clprobdistGammaStdDeviationWithObject()
+ *
+ *  @param[in]  alpha   Value of the shape parameter \f$\alpha\f$.
+ *  @param[in]  lambda  Value of the scale parameter \f$\lambda\f$.
+ *  @param[in]  decprec This parameter is unused but present for uniformity.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Standard deviation of the distribution.
+ */
+double clprobdistGammaStdDeviation(double alpha, double lambda, int decprec, clprobdistStatus* err);
+
+/*! @} */
+
+// code that is common to host and device
+#include "private/gamma.c.h"
+
+#if CLPROBDIST_GAMMA_OBJ_MEM == CLPROBDIST_MEM_TYPE_LOCAL || CLPROBDIST_GAMMA_OBJ_MEM == CLPROBDIST_MEM_TYPE_PRIVATE
+/*! @copydoc clprobdistCopyOverFromGlobal()
+ *
+ *  @warning This function is available only when
+ *  CLPROBDIST_GAMMA_OBJ_MEM is set to @ref CLPROBDIST_MEM_TYPE_LOCAL or to
+ *  @ref CLPROBDIST_MEM_TYPE_PRIVATE.
+ */
+clprobdistStatus clprobdistGammaCopyOverFromGlobal(_CLPROBDIST_GAMMA_OBJ_MEM clprobdistGamma* destDist, __global const clprobdistGamma* srcDist)
+{
+    //Check params
+    //if (!destDist) // this test causes a bug on GPU
+    //    return clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "clprobdistGammaCopyOverFromGlobal(): destDist cannot be NULL");
+    if (!srcDist)
+        return clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "clprobdistGammaCopyOverFromGlobal(): srcDist cannot be NULL");
+
+    *destDist = *srcDist;
+
+    return CLPROBDIST_SUCCESS;
+}
+#endif
+
+#endif
+
+/*
+vim: ft=c.doxygen
+*/

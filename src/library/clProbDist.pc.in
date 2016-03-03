@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}/bin@SUFFIX_BIN@
+includedir=${prefix}/include
+libdir=${prefix}/lib@SUFFIX_LIB@
+
+Name: clProbDist
+Description: Open source OpenCL probability distributions library
+Version: @CLPROBDIST_VERSION@
+URL: https://github.com/clMathLibraries/clProbDist
+
+Cflags: -I${includedir}
+Libs: -L${libdir} -lclProbDist

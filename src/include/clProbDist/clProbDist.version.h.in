@@ -1,0 +1,3 @@
+#define clprobdistVersionMajor @CLPROBDIST_VERSION_MAJOR@
+#define clprobdistVersionMinor @CLPROBDIST_VERSION_MINOR@
+#define clprobdistVersionPatch @CLPROBDIST_VERSION_PATCH@

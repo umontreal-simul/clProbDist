@@ -1,60 +1,20 @@
-# clProbDist Library
+/* This file is part of clProbDist.
+ *
+ * Copyright 2015-2016  Pierre L'Ecuyer, Universite de Montreal and Advanced Micro Devices, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-A library for probability distributions in OpenCL.
-
-
-## Overview
-
-The clProbDist library provides facilities for evaluating, on OpenCL devices and on hosts:
-
-- probability density functions;
-- probability mass functions;
-- cumulative distribution functions;
-- inverse cumulative distribution functions; and
-- reliability functions.
-
-Five distributions are currently supported:
-
-- normal;
-- lognormal;
-- exponential;
-- gamma; and
-- Poisson.
-
-In its current state, clProbDist defines a framework for working with
-probability distributions in OpenCL, and to show some working examples.  Dozens
-of **additional distributions need to be contributed** to make clProbdist a
-mature library.
-
-
-## Documentation
-
-The
-[clProbDist documentation](http://umontreal-simul.github.io/clProbDist/htmldocs/index.html)
-includes:
-
-- [a reference for the implemented distributions](http://umontreal-simul.github.io/clProbDist/htmldocs/index.html#distributions);
-- [basic usage examples](http://umontreal-simul.github.io/clProbDist/htmldocs/index.html#basic_usage) including the [generation of nonuniform variates](http://umontreal-simul.github.io/clProbDist/htmldocs/index.html#example_poissongen) with the help of the [clRNG library](https://github.com/clMathLibraries/clRNG); and
-- [the API reference](http://umontreal-simul.github.io/clProbDist/htmldocs/clProbDist__template_8h.html).
-
-
-## Examples
-
-Examples can be found in `src/client`.
-The compiled client program examples can be found under the `bin` subdirectory
-of the installation package (`$CLPROBDIST_ROOT/bin` under Linux).
-
-
-## Simple example
-
-The simple example below shows how to use clProbDist to compute the inverse CDF
-of the exponential distribution using device side headers (`.clh`) in your
-OpenCL kernel.
-Note that the example expects an OpenCL GPU device, that supports
-double-precision floating point computations, to be available.
-This example uses the API that uses *distribution objects*; another API that uses distribution parameters instead is also available.
-
-```c
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -166,10 +126,3 @@ int main( void )
 
     return 0;
 }
-```
-
-
-## Acknowledgments
-
-clProbDist was developed by Nabil Kemerchou, David Munger and Pierre L'Ecuyer at
-Université de Montréal, in collaboration with Advanced Micro Devices, Inc.

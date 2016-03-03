@@ -1,0 +1,231 @@
+/* This file is part of clProbDist.
+ *
+ * Copyright 2015-2016  Pierre L'Ecuyer, Universite de Montreal and Advanced Micro Devices, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Authors:
+ *
+ *   Nabil Kemerchou <kemerchn@iro.umontreal.ca>    (2015)
+ *   David Munger <mungerd@iro.umontreal.ca>        (2015)
+ *   Pierre L'Ecuyer <lecuyer@iro.umontreal.ca>     (2015)
+ *
+ */
+
+/*! @file poisson.clh
+ *  @brief Device-side API for the Poisson distribution
+ *
+ *  In the function declarations of this file, the preprocessor symbol
+ *  _CLPROBDIST_POISSON_OBJ_MEM expands to the selected memory type for
+ *  this distribution type.
+ */
+
+#pragma once
+#ifndef POISSONDIST_CLH
+#define POISSONDIST_CLH
+
+#include "clProbDist.clh"
+#include "gamma.clh"
+
+#ifndef CLPROBDIST_POISSON_OBJ_MEM
+/*! @brief Type of memory to store Poisson distribution objects
+ *
+ *  Defaults to @ref CLPROBDIST_MEM_TYPE_GLOBAL.
+ *
+ *  @see CLPROBDIST_MEM_TYPE_LOCAL CLPROBDIST_MEM_TYPE_CONSTANT CLPROBDIST_MEM_TYPE_GLOBAL.
+ */
+#define CLPROBDIST_POISSON_OBJ_MEM CLPROBDIST_MEM_TYPE_GLOBAL
+#endif
+
+#if CLPROBDIST_POISSON_OBJ_MEM == CLPROBDIST_MEM_TYPE_PRIVATE
+  #error Private memory not supported for Poisson distribution
+#elif CLPROBDIST_POISSON_OBJ_MEM == CLPROBDIST_MEM_TYPE_LOCAL
+  #define _CLPROBDIST_POISSON_OBJ_MEM __local
+#elif CLPROBDIST_POISSON_OBJ_MEM == CLPROBDIST_MEM_TYPE_GLOBAL
+  #define _CLPROBDIST_POISSON_OBJ_MEM __global
+#elif CLPROBDIST_POISSON_OBJ_MEM == CLPROBDIST_MEM_TYPE_CONSTANT
+  #define _CLPROBDIST_POISSON_OBJ_MEM __constant
+#else
+  #error Invalid value for CLPROBDIST_POISSON_OBJ_MEM
+#endif
+
+
+/*! @brief Poisson distribution object [**device**]
+ *
+ *  A structure that represents a Poisson distribution object.
+ */
+typedef struct _clprobdistPoisson clprobdistPoisson;
+
+
+/*! @name Functions for use with a distribution object
+ *
+ * @{
+ */
+
+/*! @copydoc clprobdistProbWithObject()
+ */
+double clprobdistPoissonProbWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, int x, clprobdistStatus* err);
+
+/*! @copydoc clprobdistCDFWithObject()
+ */
+double clprobdistPoissonCDFWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, int x, clprobdistStatus* err);
+
+/*! @copydoc clprobdistComplCDFWithObject()
+ *
+ *  @warning The complementary distribution function is defined as
+ *  \f$\bar F(j) = \mathbb P[X \geq j]\f$.
+ */
+double clprobdistPoissonComplCDFWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, int x, clprobdistStatus* err);
+
+/*! @copydoc clprobdistInverseCDFWithObject()
+ */
+int clprobdistPoissonInverseCDFWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, double u, clprobdistStatus* err);
+
+/*! @copydoc clprobdistMeanWithObject()
+ */
+double clprobdistPoissonMeanWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, clprobdistStatus* err);
+
+/*! @copydoc clprobdistVarianceWithObject()
+ */
+double clprobdistPoissonVarianceWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, clprobdistStatus* err);
+
+/*! @copydoc clprobdistStdDeviationWithObject()
+ */
+double clprobdistPoissonStdDeviationWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, clprobdistStatus* err);
+
+/*! @brief Return the value of the mean \f$\lambda\f$  [**device**]
+ */
+double clprobdistPoissonGetLambda(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, clprobdistStatus* err);
+
+/*! @} */
+
+
+/*! @name Functions for use with explicit distribution parameters
+ *
+ *  @{
+ */
+
+/*! @brief @copybrief clprobdistProb()
+ *
+ *  @see clprobdistPoissonProbWithObject()
+ *
+ *  @param[in]  lambda  Value of the mean \f$\lambda\f$.
+ *  @param[in]  x       Value of \f$x\f$.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Value of \f$f(x)\f$.
+ */
+double clprobdistPoissonProb(double lambda, int x, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistCDF()
+ *
+ *  @see clprobdistPoissonCDFWithObject()
+ *
+ *  @param[in]  lambda   Value of the mean \f$\lambda\f$.
+ *  @param[in]  x        Value of \f$x\f$.
+ *  @param[out] err	Error status variable, or \c NULL.
+ *  @return     Value of \f$F(x)\f$.
+ */
+double clprobdistPoissonCDF(double lambda, int x, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistComplCDF()
+ *
+ *  @see clprobdistPoissonComplCDFWithObject()
+ *
+ *  @warning The complementary distribution function is defined as
+ *  \f$\bar F(j) = \mathbb P[X \geq j]\f$.
+ *
+ *  @param[in]  lambda  Value of the mean \f$\lambda\f$.
+ *  @param[in]  x       Value of \f$x\f$.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Value of \f$\bar F(x)\f$.
+ */
+double clprobdistPoissonComplCDF(double lambda, int x, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistInverseCDF()
+ *
+ *  @see clprobdistPoissonInverseCDFWithObject()
+ *
+ *  @param[in]  lambda  Value of the mean \f$\lambda\f$.
+ *  @param[in]  u       Value of \f$u \in [0,1]\f$.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Value of \f$F^{-1}(u)\f$.
+ */
+int clprobdistPoissonInverseCDF(double lambda, double u, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistMean()
+ *
+ *  @see clprobdistPoissonMeanWithObject()
+ *
+ *  @param[in]  lambda  Value of the mean \f$\lambda\f$.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return	Mean of the distribution.
+ */
+double clprobdistPoissonMean(double lambda, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistVariance()
+ *
+ *  @see clprobdistPoissonVarianceWithObject()
+ *
+ *  @param[in]  lambda  Value of the mean \f$\lambda\f$.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Variance of the distribution.
+ */
+double clprobdistPoissonVariance(double lambda, clprobdistStatus* err);
+
+/*! @brief @copybrief clprobdistStdDeviation()
+ *
+ *  @see clprobdistPoissonStdDeviationWithObject()
+ *
+ *  @param[in]  lambda  Value of the mean \f$\lambda\f$.
+ *  @param[out] err     Error status variable, or \c NULL.
+ *  @return     Standard deviation of the distribution.
+ */
+double clprobdistPoissonStdDeviation(double lambda, clprobdistStatus* err);
+
+/*! @} */
+
+
+// code that is common to host and device
+#include "private/poisson.c.h"
+
+#if CLPROBDIST_POISSON_OBJ_MEM == CLPROBDIST_MEM_TYPE_LOCAL
+/*! @copydoc clprobdistCopyOverFromGlobal()
+ *
+ *  @warning This function is available only on the device, and only when
+ *  CLPROBDIST_POISSON_OBJ_MEM is set to @ref CLPROBDIST_MEM_TYPE_LOCAL.
+ */
+clprobdistStatus clprobdistPoissonCopyOverFromGlobal(_CLPROBDIST_POISSON_OBJ_MEM clprobdistPoisson* destDist, __global clprobdistPoisson* srcDist)
+{
+	//Check params
+	//if (!destDist) // this test causes a bug on GPU
+	//	return clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "clprobdistPoissonCopyOverFromGlobal(): destDist cannot be NULL");
+	if (!srcDist)
+		return clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "clprobdistPoissonCopyOverFromGlobal(): srcDist cannot be NULL");
+
+	//Copy values from global to local memory
+	destDist->params = srcDist->params;
+	uint len = destDist->params.len;
+	for (size_t i = 0; i < len; i++){
+		destDist->pdf[i] = srcDist->pdf[i];
+		destDist->cdf[i + (len - 1)] = srcDist->cdf[i + (len - 1)];
+	}
+
+	return CLPROBDIST_SUCCESS;
+}
+#endif
+
+#endif
+
+/*
+vim: ft=c.doxygen
+*/
