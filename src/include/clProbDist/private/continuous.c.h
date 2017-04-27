@@ -61,7 +61,7 @@ clprobdistStatus clprobdistContinuousSetXsup(cl_double xb, clprobdistContinuous*
 /***********************************
 * Abstract functions
 ***********************************/
-cl_double clprobdistContinuousCDF(cl_double x, clprobdistStatus* err){
+cl_double clprobdistContinuousCDF(cl_double x, clprobdistStatus* err) {
 	if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): Abstract function", __func__);
 	return -1;
 }
@@ -75,7 +75,7 @@ clprobdistStatus clprobdistContinuousFindInterval(cl_double u, cl_double* iv, cl
 
 	const cl_double XLIM = DBL_MAX / 2.0;
 	const cl_double B0 = 8.0;
-	
+
 	cl_double b = B0;
 	while (b < XLIM && u > clprobdistContinuousCDF(b, err))
 		b *= 2.0;
@@ -86,7 +86,7 @@ clprobdistStatus clprobdistContinuousFindInterval(cl_double u, cl_double* iv, cl
 	}
 
 	cl_double a = -B0;
-	while (a > -XLIM && u < clprobdistContinuousCDF(a,err))
+	while (a > -XLIM && u < clprobdistContinuousCDF(a, err))
 		a *= 2.0;
 	if (a < -B0) {
 		iv[1] = a / 2.0;
@@ -99,10 +99,10 @@ clprobdistStatus clprobdistContinuousFindInterval(cl_double u, cl_double* iv, cl
 	return CLPROBDIST_SUCCESS;
 }
 
-cl_double clprobdistContinuousDensity(cl_double x, clprobdistStatus* err){
+cl_double clprobdistContinuousDensity(cl_double x, clprobdistStatus* err) {
 	if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): Abstract function", __func__);
-  return -1;
-} 
+	return -1;
+}
 
 cl_double clprobdistContinuousGetMean(clprobdistStatus* err) {
 	if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): Abstract function", __func__);
@@ -129,7 +129,7 @@ cl_double clprobdistContinuousComplCDF(cl_double x, clprobdistStatus* err) {
 }
 
 cl_double clprobdistContinuousInverseBrent(cl_double a, cl_double b, cl_double u, cl_double tol, clprobdistContinuous* distObj, clprobdistStatus* err)  {
-	if (u > 1.0 || u < 0.0){
+	if (u > 1.0 || u < 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): u not in [0, 1]", __func__);
 		return -1;
 	}
@@ -146,15 +146,15 @@ cl_double clprobdistContinuousInverseBrent(cl_double a, cl_double b, cl_double u
 	}
 	int MAXITER = 50;      // Maximum number of iterations
 	tol += clprobdistEPSARRAY[distObj->decPrec] + DBL_EPSILON;    // in case tol is too small
-	
+
 	cl_double ua = clprobdistContinuousCDF(a, err) - u;
-	if (ua > 0.0){
+	if (ua > 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): u < cdf(a)", __func__);
 		return -1;
 	}
 
 	cl_double ub = clprobdistContinuousCDF(b, err) - u;
-	if (ub < 0.0){
+	if (ub < 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): u > cdf(b)", __func__);
 		return -1;
 	}
@@ -179,8 +179,8 @@ cl_double clprobdistContinuousInverseBrent(cl_double a, cl_double b, cl_double u
 	}
 	int i;
 	for (i = 0; i < MAXITER; ++i) {
-		cl_double tol1 = tol + 4.0*DBL_EPSILON*fabs(b);
-		cl_double xm = 0.5*(c - b);
+		cl_double tol1 = tol + 4.0 * DBL_EPSILON * fabs(b);
+		cl_double xm = 0.5 * (c - b);
 		/*if (DEBUG) {
 		System.out.println(PrintfFormat.d(3, i) + "  " +
 		PrintfFormat.g(18, decPrec, b) + "  " +
@@ -200,32 +200,29 @@ cl_double clprobdistContinuousInverseBrent(cl_double a, cl_double b, cl_double u
 				s = ub / ua;
 				q = 1.0 - s;
 				p = 2.0 * xm * s;
-			}
-			else {
+			} else {
 				// quadratic interpolation
 				q = ua / uc;
 				r = ub / uc;
 				s = ub / ua;
-				p = s*(2.0*xm*q*(q - r) - (b - a)*(r - 1.0));
-				q = (q - 1.0)*(r - 1.0)* (s - 1.0);
+				p = s * (2.0 * xm * q * (q - r) - (b - a) * (r - 1.0));
+				q = (q - 1.0) * (r - 1.0) * (s - 1.0);
 			}
 			if (p > 0.0)
 				q = -q;
 			p = fabs(p);
 
 			// Accept interpolation?
-			if ((2.0*p >= (3.0*xm*q - fabs(q*tol1))) ||
-				(p >= fabs(0.5*t*q))) {
+			if ((2.0 * p >= (3.0 * xm * q - fabs(q * tol1))) ||
+			        (p >= fabs(0.5 * t * q))) {
 				len = xm;
 				t = len;
-			}
-			else {
+			} else {
 				t = len;
 				len = p / q;
 			}
 
-		}
-		else {
+		} else {
 			len = xm;
 			t = len;
 		}
@@ -241,13 +238,12 @@ cl_double clprobdistContinuousInverseBrent(cl_double a, cl_double b, cl_double u
 
 		ub = clprobdistContinuousCDF(b, err) - u;
 
-		if (ub*(uc / fabs(uc)) > 0.0) {
+		if (ub * (uc / fabs(uc)) > 0.0) {
 			c = a;
 			uc = ua;
 			len = b - a;
 			t = len;
-		}
-		else if (fabs(uc) < fabs(ub)) {
+		} else if (fabs(uc) < fabs(ub)) {
 			a = b; b = c; c = a;
 			ua = ub; ub = uc; uc = ua;
 		}
@@ -256,23 +252,23 @@ cl_double clprobdistContinuousInverseBrent(cl_double a, cl_double b, cl_double u
 		/*	String lineSep = System.getProperty("line.separator");
 		System.out.println(lineSep +"*********** inverseBrent:   no convergence after " + MAXITER +" iterations");*/
 	}
-	return b;	
+	return b;
 }
 
 cl_double clprobdistContinuousInverseBisection(cl_double u, clprobdistContinuous* distObj, clprobdistStatus* err) {
 	int MAXITER = 100;              // Maximum number of iterations
 	cl_double EPSILON = clprobdistEPSARRAY[distObj->decPrec];  // Absolute precision
 
-	if (u > 1.0 || u < 0.0){
+	if (u > 1.0 || u < 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): u not in [0, 1]", __func__);
 		return -1;
 	}
-	
+
 	if (distObj->decPrec > DBL_DIG)	{
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): decPrec too large", __func__);
 		return -1;
 	}
-	
+
 	if (distObj->decPrec <= 0)	{
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): decPrec <= 0", __func__);
 		return -1;
@@ -289,7 +285,7 @@ cl_double clprobdistContinuousInverseBisection(cl_double u, clprobdistContinuous
 		return x;
 	}
 
-	cl_double iv[2] = { 0, 0 }; 
+	cl_double iv[2] = { 0, 0 };
 	clprobdistContinuousFindInterval(u, iv, distObj, err);
 	cl_double xa = iv[0];
 	cl_double xb = iv[1];
@@ -302,16 +298,13 @@ cl_double clprobdistContinuousInverseBisection(cl_double u, clprobdistContinuous
 	while (!fini) {
 		x = (xa + xb) / 2.0;
 
-		y = clprobdistContinuousCDF(x,err) - u;
+		y = clprobdistContinuousCDF(x, err) - u;
 		if ((y == 0.0) ||
-			(fabs((xb - xa) / (x + DBL_EPSILON)) <= EPSILON))
-		{
+		        (fabs((xb - xa) / (x + DBL_EPSILON)) <= EPSILON)) {
 			fini = CL_TRUE;
-		}
-		else if (y*ya < 0.0){
+		} else if (y * ya < 0.0) {
 			xb = x;
-		}
-		else
+		} else
 			xa = x;
 		++i;
 

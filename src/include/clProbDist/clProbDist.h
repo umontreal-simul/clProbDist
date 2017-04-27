@@ -869,47 +869,47 @@ typedef enum clprobdistStatus_ {
 extern "C" {
 #endif
 
-	/*! @brief Retrieve the last error message.
-	*
-	*  The buffer containing the error message is internally allocated and must
-	*  not be freed by the client.
-	*
-	*  @return     Error message or `NULL`.
-	*/
-	const char* clprobdistGetErrorString();
+/*! @brief Retrieve the last error message.
+*
+*  The buffer containing the error message is internally allocated and must
+*  not be freed by the client.
+*
+*  @return     Error message or `NULL`.
+*/
+const char* clprobdistGetErrorString();
 
-	/*! @brief Generate an include option string for use with the OpenCL C compiler
-	*
-	*  Generate and return "-I${CLPROBDIST_ROOT}/include", where \c ${CLPROBDIST_ROOT} is
-	*  the value of the \c CLPROBDIST_ROOT environment variable.
-	*  This string is meant to be passed as an option to the OpenCL C compiler for
-	*  programs that make use of the clProbDist device-side headers.
-	*  If the \c CLPROBDIST_ROOT environment variable is not defined, it
-        *  defaults to `/usr` if the file
-        *  `/usr/include/clProbDist/clProbDist.h` exists, else to the current
-	*  directory of execution of the program.
-	*
-	*  A static buffer is return and need not be released; it could change upon
-	*  successive calls to the function.
-	*
-	*  An error is returned in \c err if the preallocated buffer is too small to
-	*  contain the include string.
-	*
-	*  @param[out]     err         Error status variable, or `NULL`.
-	*
-	*  @return An OpenCL C compiler option to indicate where to find the
-	*  device-side clProbDist headers.
-	*/
-	const char* clprobdistGetLibraryDeviceIncludes(cl_int* err);
+/*! @brief Generate an include option string for use with the OpenCL C compiler
+*
+*  Generate and return "-I${CLPROBDIST_ROOT}/include", where \c ${CLPROBDIST_ROOT} is
+*  the value of the \c CLPROBDIST_ROOT environment variable.
+*  This string is meant to be passed as an option to the OpenCL C compiler for
+*  programs that make use of the clProbDist device-side headers.
+*  If the \c CLPROBDIST_ROOT environment variable is not defined, it
+    *  defaults to `/usr` if the file
+    *  `/usr/include/clProbDist/clProbDist.h` exists, else to the current
+*  directory of execution of the program.
+*
+*  A static buffer is return and need not be released; it could change upon
+*  successive calls to the function.
+*
+*  An error is returned in \c err if the preallocated buffer is too small to
+*  contain the include string.
+*
+*  @param[out]     err         Error status variable, or `NULL`.
+*
+*  @return An OpenCL C compiler option to indicate where to find the
+*  device-side clProbDist headers.
+*/
+const char* clprobdistGetLibraryDeviceIncludes(cl_int* err);
 
-	/*! @brief Retrieve the library installation path
-	*
-        *  @return Value of the CLPROBDIST_ROOT environment variable, if
-        *  defined; else, `/usr` if the file
-        *  `/usr/include/clProbDist/clProbDist.h` exists; or, the current
-	*  directory (.) of execution of the program otherwise.
-	*/
-	const char* clprobdistGetLibraryRoot();
+/*! @brief Retrieve the library installation path
+*
+    *  @return Value of the CLPROBDIST_ROOT environment variable, if
+    *  defined; else, `/usr` if the file
+    *  `/usr/include/clProbDist/clProbDist.h` exists; or, the current
+*  directory (.) of execution of the program otherwise.
+*/
+const char* clprobdistGetLibraryRoot();
 
 #ifdef __cplusplus
 }

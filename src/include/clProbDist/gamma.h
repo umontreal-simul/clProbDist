@@ -44,6 +44,11 @@
 #include "clProbDist/clProbDist.h"
 #include "clProbDist/continuous.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /*! @brief Gamma distribution object [**device**]
  *
  *  A structure that represents a gamma distribution object.
@@ -251,5 +256,9 @@ cl_double clprobdistGammaComplCDF_1(cl_double alpha, int d, cl_double x, clprobd
  *  Same as clprobdistGammaInverseCDF(), but for \f$\lambda = 1\f$.
  */
 cl_double clprobdistGammaInverseCDF_1(cl_double alpha, int d, cl_double u, clprobdistStatus* err);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

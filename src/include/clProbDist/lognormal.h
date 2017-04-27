@@ -37,6 +37,11 @@
 #include "clProbDist/clProbDist.h"
 #include "clProbDist/continuous.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /*! @brief Lognormal distribution object [**device**]
 *
 *  A structure that represents a lognormal distribution object.
@@ -221,6 +226,8 @@ cl_double clprobdistLognormalStdDeviation(cl_double mu, cl_double sigma, clprobd
 
 /*! @} */
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -36,6 +36,11 @@
 #include "clProbDist/clProbDist.h"
 #include "clProbDist/continuous.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /*! @brief Exponential distribution object [**device**]
  *
  *  A structure that represents an exponential distribution object.
@@ -59,6 +64,7 @@ typedef struct _clprobdistExponential clprobdistExponential;
  *  @param[out] err     Error status variable, or \c NULL.
  *  @return     New distribution object.
  */
+
 clprobdistExponential* clprobdistExponentialCreate(cl_double lambda, size_t* bufSize, clprobdistStatus* err);
 
 /*! @copydoc clprobdistDestroy()
@@ -194,5 +200,8 @@ cl_double clprobdistExponentialStdDeviation(cl_double lambda, clprobdistStatus* 
 
 /*! @} */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

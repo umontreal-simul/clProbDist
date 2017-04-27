@@ -34,6 +34,11 @@
 #define _CLPROBDIST_POISSON_OBJ_MEM
 #endif
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #ifndef __OPENCL_C_VERSION__
 #include <limits.h>
 #endif
@@ -63,17 +68,17 @@ constant const cl_double clprobdistPoisson_EPSILON = 1.0e-16;
 
 cl_double clprobdistPoissonCDF_1(cl_double lambda, cl_int x, clprobdistStatus* err);
 
-static cl_double clprobdistPoisson_CDF(cl_int x, _CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist){
+static cl_double clprobdistPoisson_CDF(cl_int x, _CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist) {
 	return dist->cdf[x + (dist->params.len - 1)];
 }
 
 static cl_double clprobdistPoisson_factorial(cl_int n, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (n < 0){
+	if (n < 0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): n < 0", __func__);
 		return -1;
 	}
-		
+
 	cl_double T = 1;
 	for (cl_int j = 2; j <= n; j++)
 		T *= j;
@@ -82,28 +87,26 @@ static cl_double clprobdistPoisson_factorial(cl_int n, clprobdistStatus* err) {
 
 cl_double clprobdistPoissonProb(cl_double lambda, cl_int x, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (x < 0) 
+	if (x < 0)
 		return 0.0;
 
 	if (lambda >= 100.0) {
-		if ((cl_double)x >= 10.0*lambda)
+		if ((cl_double)x >= 10.0 * lambda)
 			return 0.0;
-	}
-	else if (lambda >= 3.0) {
-		if ((cl_double)x >= 100.0*lambda)
-			return 0.0;			
-	}
-	else {
-		if ((cl_double)x >= 200.0*fmax(1.0, lambda))
+	} else if (lambda >= 3.0) {
+		if ((cl_double)x >= 100.0 * lambda)
+			return 0.0;
+	} else {
+		if ((cl_double)x >= 200.0 * fmax(1.0, lambda))
 			return 0.0;
 	}
 
 	cl_double lambdaLIM = 20.0;
 	cl_double Res;
 	if (lambda < lambdaLIM && x <= 100)
-		Res = exp(-lambda)*pow(lambda, x) / clprobdistPoisson_factorial(x, err);
+		Res = exp(-lambda) * pow(lambda, x) / clprobdistPoisson_factorial(x, err);
 	else {
-		cl_double y = x*log(lambda) - lgamma(x + 1.0) - lambda;
+		cl_double y = x * log(lambda) - lgamma(x + 1.0) - lambda;
 		Res = exp(y);
 	}
 	return Res;
@@ -114,21 +117,20 @@ cl_double clprobdistPoissonCDF(cl_double lambda, cl_int x, clprobdistStatus* err
 cl_double clprobdistPoissonComplCDF(cl_double lambda, cl_int x, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 	//check Params
-	if (lambda < 0){
+	if (lambda < 0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda < 0", __func__);
 		return -1;
 	}
 
-	if (x <= 0) 
+	if (x <= 0)
 		return 1.0;
 
 	if (lambda >= 100.0) {
-		if ((cl_double)x >= 10.0*lambda)
+		if ((cl_double)x >= 10.0 * lambda)
 			return 0.0;
-	}
-	else {
+	} else {
 		if ((cl_double)x >= 100 + 100.0 * fmax(1.0, lambda))
-			return 0.0;		
+			return 0.0;
 	}
 
 	/* If lambda > lambdaLIM, we use the Chi2 distribution according to the
@@ -145,7 +147,7 @@ cl_double clprobdistPoissonComplCDF(cl_double lambda, cl_int x, clprobdistStatus
 
 	if (x <= lambda)
 		return 1.0 - clprobdistPoissonCDF_1(lambda, x - 1, err);
-	
+
 
 	// Naive computation: sum all prob. from i = x to i = oo
 	cl_double term, sum;
@@ -153,7 +155,7 @@ cl_double clprobdistPoissonComplCDF(cl_double lambda, cl_int x, clprobdistStatus
 
 	// Sum at least IMAX prob. terms from i = s to i = oo
 	sum = term = clprobdistPoissonProb(lambda, x, err);
-	
+
 	cl_int i = x + 1;
 	while (term > clprobdistPoisson_EPSILON || i <= x + IMAX) {
 		term *= lambda / i;
@@ -177,24 +179,23 @@ cl_double clprobdistPoissonCDF_1(cl_double lambda, cl_int x, clprobdistStatus* e
 	* naive computation for dist->params.lambdalim > 200.0, slower for dist->params.lambdalim < 200.0
 	*/
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (lambda < 0.0){
+	if (lambda < 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda < 0", __func__);
 		return -1;
 	}
 
 	if (lambda == 0.0)
 		return 1.0;
-		
+
 	if (x < 0)
 		return 0.0;
-		
+
 
 	if (lambda >= 100.0) {
-		if ((cl_double)x >= 10.0*lambda)
-			return 1.0;		
-	}
-	else {
-		if ((cl_double)x >= 100.0*fmax(1.0, lambda))
+		if ((cl_double)x >= 10.0 * lambda)
+			return 1.0;
+	} else {
+		if ((cl_double)x >= 100.0 * fmax(1.0, lambda))
 			return 1.0;
 	}
 
@@ -221,17 +222,17 @@ cl_double clprobdistPoissonCDF_1(cl_double lambda, cl_int x, clprobdistStatus* e
 		term *= lambda / j;
 		sum += term;
 	}
-	return sum*exp(-lambda);
+	return sum * exp(-lambda);
 }
 
 cl_int clprobdistPoissonInverseCDF(cl_double lambda, cl_double u, clprobdistStatus* err) {
 	//Check Params
-	if (u < 0.0 || u > 1.0){
+	if (u < 0.0 || u > 1.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): u is not in range [0,1]", __func__);
 		return -1;
 	}
 
-	if (lambda < 0.0){
+	if (lambda < 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda < 0", __func__);
 		return -1;
 	}
@@ -239,15 +240,14 @@ cl_int clprobdistPoissonInverseCDF(cl_double lambda, cl_double u, clprobdistStat
 	if (u >= 1.0)
 		return INT_MAX;
 
-	if (u <= clprobdistPoissonProb(lambda, 0, err)) 
+	if (u <= clprobdistPoissonProb(lambda, 0, err))
 		return 0;
 
 	//Calculate InverseCDF
 	cl_int i;
 	cl_double lambdaLIM = 700.0;
 
-	if (lambda < lambdaLIM)
-	{
+	if (lambda < lambdaLIM) {
 		cl_double sumprev = -1.0;
 		cl_double term = exp(-lambda);
 		cl_double sum = term;
@@ -261,8 +261,7 @@ cl_int clprobdistPoissonInverseCDF(cl_double lambda, cl_double u, clprobdistStat
 
 		return i;
 
-	}
-	else {
+	} else {
 		// When lambda is very large, the probabilities are empirically
 		// negligible when i is far from lambda.  We start with a binary search
 		// over [0,lambda] for the smallest value of i for which the probability
@@ -296,7 +295,7 @@ cl_int clprobdistPoissonInverseCDF(cl_double lambda, cl_double u, clprobdistStat
 		// probabilities for i <= mid.
 		// Probabilities below clprobdistPoisson_EPSILON*u are deemed
 		// negligible.
-		while (term >= clprobdistPoisson_EPSILON*u && i > 0) {
+		while (term >= clprobdistPoisson_EPSILON * u && i > 0) {
 			term *= i / lambda;
 			sum += term;
 			i--;
@@ -313,8 +312,7 @@ cl_int clprobdistPoissonInverseCDF(cl_double lambda, cl_double u, clprobdistStat
 				prev = sum;
 				sum += term;
 			}
-		}
-		else {
+		} else {
 			// The computed CDF is too big so we substract from it.
 			sum -= term;
 			while (sum >= u) {
@@ -332,7 +330,7 @@ cl_double clprobdistPoissonMean(cl_double lambda, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 
 	//Check Params
-	if (lambda < 0.0){
+	if (lambda < 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda < 0", __func__);
 		return -1;
 	}
@@ -344,7 +342,7 @@ cl_double clprobdistPoissonVariance(cl_double lambda, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 
 	//Check Params
-	if (lambda < 0.0){
+	if (lambda < 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda < 0", __func__);
 		return -1;
 	}
@@ -356,7 +354,7 @@ cl_double clprobdistPoissonStdDeviation(cl_double lambda, clprobdistStatus* err)
 	if (err) *err = CLPROBDIST_SUCCESS;
 
 	//Check Params
-	if (lambda < 0.0){
+	if (lambda < 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda < 0", __func__);
 		return -1;
 	}
@@ -369,7 +367,7 @@ cl_double clprobdistPoissonStdDeviation(cl_double lambda, clprobdistStatus* err)
 
 cl_double clprobdistPoissonProbWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, cl_int x, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (x < 0) 
+	if (x < 0)
 		return 0.0;
 
 	if (!dist->pdf)
@@ -387,7 +385,7 @@ cl_double clprobdistPoissonCDFWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clpro
 
 	if (x < 0)
 		return 0.0;
-		
+
 	if (dist->params.lambda == 0.0)
 		return 1.0;
 
@@ -397,7 +395,7 @@ cl_double clprobdistPoissonCDFWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clpro
 	cdf (lambda, x) = 1 - chiSquare (2x + 2, 2*lambda)
 
 	which equals also 1 - gamma (x + 1, dist->params.lambda) */
-	
+
 	if (!dist->cdf)
 		return clprobdistGammaComplCDF_1(x + 1.0, 15, dist->params.lambda, err);
 
@@ -409,7 +407,7 @@ cl_double clprobdistPoissonCDFWithObject(_CLPROBDIST_POISSON_OBJ_MEM const clpro
 		// could also call clprobdistGamma.barF instead.
 		cl_int RMAX = 20;
 		cl_int i;
-		cl_double term; 
+		cl_double term;
 		Sum = term = clprobdistPoissonProb(dist->params.lambda, x, err);
 		i = x;
 		while (i > 0 && i >= x - RMAX) {
@@ -433,7 +431,7 @@ cl_double clprobdistPoissonComplCDFWithObject(_CLPROBDIST_POISSON_OBJ_MEM const 
 	*/
 	if (err) *err = CLPROBDIST_SUCCESS;
 
-	if (x <= 0) 
+	if (x <= 0)
 		return 1.0;
 
 	/* For large dist->params.lambda,  we use the Chi2 distribution according to the exact
@@ -452,30 +450,29 @@ cl_double clprobdistPoissonComplCDFWithObject(_CLPROBDIST_POISSON_OBJ_MEM const 
 	if (x <= dist->params.xmin)
 		return 1.0;
 
-	if (x > dist->params.xmed){
+	if (x > dist->params.xmed) {
 		// We keep the complementary distribution in the upper part of cdf
 		return clprobdistPoisson_CDF(x - dist->params.xmin, dist);
-	}
-	else
+	} else
 		return 1.0 - clprobdistPoisson_CDF(x - 1 - dist->params.xmin, dist);
 }
 
 cl_int clprobdistDiscreteInverseCDF(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, cl_double u, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 
-	cl_int i=0, j=0, k=0;
+	cl_int i = 0, j = 0, k = 0;
 
-	if (u < 0.0 || u > 1.0){
+	if (u < 0.0 || u > 1.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): u is not in [0,1]", __func__);
 		return -1;
 	}
-		
+
 	if (u <= 0.0)
 		return dist->params.supportA;
-		
+
 	if (u >= 1.0)
 		return dist->params.supportB;
-		
+
 
 	// Remember: the upper part of cdf contains the complementary distribu-
 	// tion for xmed < s <= xmax, and the lower part of cdf the
@@ -485,7 +482,7 @@ cl_int clprobdistDiscreteInverseCDF(_CLPROBDIST_POISSON_OBJ_MEM const clprobdist
 		// In the lower part of cdf
 		if (u <= clprobdistPoisson_CDF(0, dist))
 			return dist->params.xmin;
-			
+
 		i = 0;
 		j = dist->params.xmed - dist->params.xmin;
 		while (i < j) {
@@ -495,24 +492,23 @@ cl_int clprobdistDiscreteInverseCDF(_CLPROBDIST_POISSON_OBJ_MEM const clprobdist
 			else
 				j = k;
 		}
-	}
-	else {
+	} else {
 		// In the upper part of cdf
 		u = 1 - u;
 		if (u < clprobdistPoisson_CDF(dist->params.xmax - dist->params.xmin, dist))
 			return dist->params.xmax;
 
-			i = dist->params.xmed - dist->params.xmin + 1;
-			j = dist->params.xmax - dist->params.xmin;
-			while (i < j) {
-				k = (i + j) / 2;
-				if (u < clprobdistPoisson_CDF(k, dist))
-					i = k + 1;
-				else
-					j = k;
-			}
-			i--;
-		
+		i = dist->params.xmed - dist->params.xmin + 1;
+		j = dist->params.xmax - dist->params.xmin;
+		while (i < j) {
+			k = (i + j) / 2;
+			if (u < clprobdistPoisson_CDF(k, dist))
+				i = k + 1;
+			else
+				j = k;
+		}
+		i--;
+
 	}
 	return i + dist->params.xmin;
 }
@@ -537,11 +533,13 @@ cl_double clprobdistPoissonStdDeviationWithObject(_CLPROBDIST_POISSON_OBJ_MEM co
 	return clprobdistPoissonStdDeviation(dist->params.lambda, err);
 }
 
-cl_double clprobdistPoissonGetLambda(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, clprobdistStatus* err)
-{
+cl_double clprobdistPoissonGetLambda(_CLPROBDIST_POISSON_OBJ_MEM const clprobdistPoisson* dist, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 	return dist->params.lambda;
 }
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // PRIVATE_POISSONDIST_CH

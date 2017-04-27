@@ -30,6 +30,11 @@
 #define _CLPROBDIST_EXPONENTIAL_OBJ_MEM
 #endif
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 struct _clprobdistExponential {
 	clprobdistContinuous continuousDistObj;
 	cl_double lambda;
@@ -39,8 +44,7 @@ struct _clprobdistExponential {
 constant const cl_double clprobdistExponentialXBIG = 100.0;
 constant const cl_double clprobdistExponentialXBIGM = 1000.0;
 
-clprobdistStatus clprobdistExponentialSetLambda(_CLPROBDIST_EXPONENTIAL_OBJ_MEM clprobdistExponential* distObj, cl_double newlambda)
-{
+clprobdistStatus clprobdistExponentialSetLambda(_CLPROBDIST_EXPONENTIAL_OBJ_MEM clprobdistExponential* distObj, cl_double newlambda) {
 	clprobdistStatus err = CLPROBDIST_SUCCESS;
 
 	if (distObj->lambda <= 0)
@@ -52,11 +56,10 @@ clprobdistStatus clprobdistExponentialSetLambda(_CLPROBDIST_EXPONENTIAL_OBJ_MEM 
 	return err;
 }
 
-cl_double clprobdistExponentialDensity(cl_double lambda, cl_double x, clprobdistStatus* err)
-{
+cl_double clprobdistExponentialDensity(cl_double lambda, cl_double x, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 
-	if (lambda <= 0){
+	if (lambda <= 0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
@@ -64,11 +67,10 @@ cl_double clprobdistExponentialDensity(cl_double lambda, cl_double x, clprobdist
 	return x < 0 ? 0 : lambda * exp(-lambda * x);
 }
 
-cl_double clprobdistExponentialCDF(cl_double lambda, cl_double x, clprobdistStatus* err)
-{
+cl_double clprobdistExponentialCDF(cl_double lambda, cl_double x, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 
-	if (lambda <= 0){
+	if (lambda <= 0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
@@ -83,27 +85,26 @@ cl_double clprobdistExponentialCDF(cl_double lambda, cl_double x, clprobdistStat
 	return -expm1(-y);
 }
 
-cl_double clprobdistExponentialComplCDF(cl_double lambda, cl_double x, clprobdistStatus* err)
-{
+cl_double clprobdistExponentialComplCDF(cl_double lambda, cl_double x, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 
-	if (lambda <= 0){
+	if (lambda <= 0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
 	if (x <= 0.0)
 		return 1.0;
 
-	if (lambda*x >= clprobdistExponentialXBIGM)
+	if (lambda * x >= clprobdistExponentialXBIGM)
 		return 0.0;
 
-	return exp(-lambda*x);
+	return exp(-lambda * x);
 }
 
-cl_double clprobdistExponentialInverseCDF(cl_double lambda, cl_double u, clprobdistStatus* err){
+cl_double clprobdistExponentialInverseCDF(cl_double lambda, cl_double u, clprobdistStatus* err) {
 
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (lambda <= 0){
+	if (lambda <= 0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
@@ -122,10 +123,9 @@ cl_double clprobdistExponentialInverseCDF(cl_double lambda, cl_double u, clprobd
 	return -log1p(-u) / lambda; // log1p is defined on OpenCL C
 }
 
-cl_double clprobdistExponentialMean(cl_double lambda, clprobdistStatus* err)
-{
+cl_double clprobdistExponentialMean(cl_double lambda, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (lambda <= 0.0){
+	if (lambda <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
@@ -133,10 +133,9 @@ cl_double clprobdistExponentialMean(cl_double lambda, clprobdistStatus* err)
 	return (1 / lambda);
 }
 
-cl_double clprobdistExponentialVariance(cl_double lambda, clprobdistStatus* err)
-{
+cl_double clprobdistExponentialVariance(cl_double lambda, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (lambda <= 0.0){
+	if (lambda <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
@@ -144,10 +143,9 @@ cl_double clprobdistExponentialVariance(cl_double lambda, clprobdistStatus* err)
 	return (1 / (lambda * lambda));
 }
 
-cl_double clprobdistExponentialStdDeviation(cl_double lambda, clprobdistStatus* err)
-{
+cl_double clprobdistExponentialStdDeviation(cl_double lambda, clprobdistStatus* err) {
 	*err = CLPROBDIST_SUCCESS;
-	if (lambda <= 0.0){
+	if (lambda <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
@@ -156,8 +154,7 @@ cl_double clprobdistExponentialStdDeviation(cl_double lambda, clprobdistStatus* 
 }
 
 
-cl_double clprobdistExponentialGetLambda(_CLPROBDIST_EXPONENTIAL_OBJ_MEM const clprobdistExponential* distObj, clprobdistStatus* err)
-{
+cl_double clprobdistExponentialGetLambda(_CLPROBDIST_EXPONENTIAL_OBJ_MEM const clprobdistExponential* distObj, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 	return distObj->lambda;
 }
@@ -180,17 +177,20 @@ cl_double clprobdistExponentialInverseCDFWithObject(_CLPROBDIST_EXPONENTIAL_OBJ_
 }
 
 
-cl_double clprobdistExponentialMeanWithObject(_CLPROBDIST_EXPONENTIAL_OBJ_MEM const clprobdistExponential* distObj, clprobdistStatus* err){
-	  return clprobdistExponentialMean(distObj->lambda, err);
+cl_double clprobdistExponentialMeanWithObject(_CLPROBDIST_EXPONENTIAL_OBJ_MEM const clprobdistExponential* distObj, clprobdistStatus* err) {
+	return clprobdistExponentialMean(distObj->lambda, err);
 }
 
-cl_double clprobdistExponentialVarianceWithObject(_CLPROBDIST_EXPONENTIAL_OBJ_MEM const clprobdistExponential* distObj, clprobdistStatus* err){
-	  return clprobdistExponentialVariance(distObj->lambda, err);
+cl_double clprobdistExponentialVarianceWithObject(_CLPROBDIST_EXPONENTIAL_OBJ_MEM const clprobdistExponential* distObj, clprobdistStatus* err) {
+	return clprobdistExponentialVariance(distObj->lambda, err);
 }
 
-cl_double clprobdistExponentialStdDeviationWithObject(_CLPROBDIST_EXPONENTIAL_OBJ_MEM const clprobdistExponential* distObj, clprobdistStatus* err){
-	  return clprobdistExponentialStdDeviation(distObj->lambda, err);
+cl_double clprobdistExponentialStdDeviationWithObject(_CLPROBDIST_EXPONENTIAL_OBJ_MEM const clprobdistExponential* distObj, clprobdistStatus* err) {
+	return clprobdistExponentialStdDeviation(distObj->lambda, err);
 }
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

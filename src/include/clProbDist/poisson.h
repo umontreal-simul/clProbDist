@@ -36,6 +36,10 @@
 #include "clProbDist/clProbDist.h"
 #include <float.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /*! @brief Poisson distribution object [**device**]
  *
