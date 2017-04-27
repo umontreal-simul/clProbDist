@@ -30,9 +30,14 @@
 #define _CLPROBDIST_GAMMA_OBJ_MEM
 #endif
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #define signum(a)    (((a) < 0) ? -1 : (((a) > 0) ? 1 : 0))
 
-typedef struct _clprobdistGammaParams{
+typedef struct _clprobdistGammaParams {
 	cl_double alpha;
 	cl_double lambda;
 	cl_double logFactor;
@@ -61,18 +66,17 @@ constant const cl_double clprobdistGammaEPSARRAY[] = {
 /*
 * This is the function  1 + (1 - x*x + 2*x*log(x)) / ((1 - x)*(1 - x))
 */
-static cl_double clprobdistGamma_mybelog(cl_double x)
-{
+static cl_double clprobdistGamma_mybelog(cl_double x) {
 	if (x < 1.0e-30)
 		return 0.0;
 	if (x > 1.0e30)
-		return 2.0*(log(x) - 1.0) / x;
+		return 2.0 * (log(x) - 1.0) / x;
 	if (x == 1.0)
 		return 1.0;
 
 	cl_double t = 1.0 - x;
 	if (x < 0.9 || x > 1.1) {
-		cl_double w = (t + x*log(x)) / (t*t);
+		cl_double w = (t + x * log(x)) / (t * t);
 		return 2.0 * w;
 	}
 
@@ -88,7 +92,7 @@ static cl_double clprobdistGamma_mybelog(cl_double x)
 		sum += term;
 		j++;
 	} while (fabs(term / sum) > EPS);
-	return 2.0*sum;
+	return 2.0 * sum;
 }
 
 //************************************
@@ -188,8 +192,7 @@ cl_double clprobdistRootFinderBrentDekker(cl_double a, cl_double b, clprobdistRo
 				s = fb / fa;
 				p = s * (2.0 * xm * q * (q - r) - (b - a) * (r - 1.0));
 				q = (q - 1.0) * (r - 1.0) * (s - 1.0);
-			}
-			else {
+			} else {
 				// Linear interpolation
 				s = fb / fa;
 				p = 2.0 * xm * s;
@@ -203,16 +206,14 @@ cl_double clprobdistRootFinderBrentDekker(cl_double a, cl_double b, clprobdistRo
 
 			// Is interpolation acceptable ?
 			if (((2.0 * p) >= (3.0 * xm * q - fabs(tol1 * q)))
-				|| (p >= fabs(0.5 * e * q))) {
+			        || (p >= fabs(0.5 * e * q))) {
 				d = xm;
 				e = d;
-			}
-			else {
+			} else {
 				e = d;
 				d = p / q;
 			}
-		}
-		else {
+		} else {
 			// Bisection necessary
 			d = xm;
 			e = d;
@@ -226,13 +227,12 @@ cl_double clprobdistRootFinderBrentDekker(cl_double a, cl_double b, clprobdistRo
 			b -= tol1;
 		else
 			b += tol1;
-		fb = clprobdistRootFinderFuncEvaluate(b,f, err);
+		fb = clprobdistRootFinderFuncEvaluate(b, f, err);
 		if (fb * (signum(fc)) > 0.0) {
 			c = a;
 			fc = fa;
 			d = e = b - a;
-		}
-		else {
+		} else {
 			a = b;
 			b = c;
 			c = a;
@@ -274,7 +274,7 @@ cl_double clprobdistRootFinderBisection(cl_double a, cl_double b, clprobdistRoot
 	}
 	cl_double xa = a;
 	cl_double xb = b;
-	cl_double ya = clprobdistRootFinderFuncEvaluate(a,f, err);
+	cl_double ya = clprobdistRootFinderFuncEvaluate(a, f, err);
 	cl_double x = 0, y = 0;
 	int MAXITER = 1200;   // Maximum number of iterations
 	//bool DEBUG = false;
@@ -286,10 +286,10 @@ cl_double clprobdistRootFinderBisection(cl_double a, cl_double b, clprobdistRoot
 	int i = 0;
 	while (!fini) {
 		x = (xa + xb) / 2.0;
-		y = clprobdistRootFinderFuncEvaluate(x,f, err);
+		y = clprobdistRootFinderFuncEvaluate(x, f, err);
 		if ((fabs(y) <= clprobdistGamma_MINVAL) ||
-			(fabs(xb - xa) <= tol * fabs(x)) ||
-			(fabs(xb - xa) <= clprobdistGamma_MINVAL)) {
+		        (fabs(xb - xa) <= tol * fabs(x)) ||
+		        (fabs(xb - xa) <= clprobdistGamma_MINVAL)) {
 			if (fabs(x) > clprobdistGamma_MINVAL)
 				return x;
 			else
@@ -312,15 +312,14 @@ cl_double clprobdistRootFinderBisection(cl_double a, cl_double b, clprobdistRoot
 
 //Static functions
 
-cl_double clprobdistGammaDensity(cl_double alpha, cl_double lambda, int decprec, cl_double x, clprobdistStatus* err)
-{
+cl_double clprobdistGammaDensity(cl_double alpha, cl_double lambda, int decprec, cl_double x, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (alpha <= 0.0){
+	if (alpha <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): alpha <= 0", __func__);
 		return -1;
 	}
 
-	if (lambda <= 0.0){
+	if (lambda <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
@@ -328,7 +327,7 @@ cl_double clprobdistGammaDensity(cl_double alpha, cl_double lambda, int decprec,
 
 	if (x <= 0)
 		return 0.0;
-	cl_double z = alpha * log(lambda*x) - lambda*x - lgamma(alpha);
+	cl_double z = alpha * log(lambda * x) - lambda * x - lgamma(alpha);
 	if (z > -clprobdistGammaXBIGM)
 		return exp(z) / x;
 	else
@@ -337,12 +336,12 @@ cl_double clprobdistGammaDensity(cl_double alpha, cl_double lambda, int decprec,
 
 cl_double clprobdistGammaStdDeviation(cl_double alpha, cl_double lambda, int decprec, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (alpha <= 0.0){
+	if (alpha <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): alpha <= 0", __func__);
 		return -1;
 	}
 
-	if (lambda <= 0.0){
+	if (lambda <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
@@ -351,12 +350,12 @@ cl_double clprobdistGammaStdDeviation(cl_double alpha, cl_double lambda, int dec
 }
 cl_double clprobdistGammaInverseCDF_1(cl_double alpha, int d, cl_double u, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (alpha <= 0.0){
+	if (alpha <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): alpha <= 0", __func__);
 		return -1;
 	}
 
-	if (u > 1.0 || u < 0.0){
+	if (u > 1.0 || u < 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s():  u not in [0,1]", __func__);
 		return -1;
 	}
@@ -367,7 +366,7 @@ cl_double clprobdistGammaInverseCDF_1(cl_double alpha, int d, cl_double u, clpro
 	if (u >= 1.0)
 		return DBL_MAX;
 
-	if (d <= 0){
+	if (d <= 0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): d <= 0", __func__);
 		return -1;
 	}
@@ -400,8 +399,7 @@ cl_double clprobdistGammaInverseCDF_1(cl_double alpha, int d, cl_double u, clpro
 			return clprobdistRootFinderBisection(x, xmax, &f, EPS, err);
 		else
 			return clprobdistRootFinderBisection(0, x, &f, EPS, err);
-	}
-	else {
+	} else {
 		if (cdf < u)
 			return clprobdistRootFinderBrentDekker(x, xmax, &f, EPS, err);
 		else
@@ -412,12 +410,12 @@ cl_double clprobdistGammaInverseCDF_1(cl_double alpha, int d, cl_double u, clpro
 cl_double clprobdistGammaMean(cl_double alpha, cl_double lambda, int decprec, clprobdistStatus* err) {
 
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (alpha <= 0.0){
+	if (alpha <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): alpha <= 0", __func__);
 		return -1;
 	}
 
-	if (lambda <= 0.0){
+	if (lambda <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
@@ -427,12 +425,12 @@ cl_double clprobdistGammaMean(cl_double alpha, cl_double lambda, int decprec, cl
 }
 cl_double clprobdistGammaVariance(cl_double alpha, cl_double lambda, int decprec, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
-	if (alpha <= 0.0){
+	if (alpha <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): alpha <= 0", __func__);
 		return -1;
 	}
 
-	if (lambda <= 0.0){
+	if (lambda <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): lambda <= 0", __func__);
 		return -1;
 	}
@@ -443,12 +441,12 @@ cl_double clprobdistGammaVariance(cl_double alpha, cl_double lambda, int decprec
 cl_double clprobdistGammaComplCDF_1(cl_double alpha, int d, cl_double x, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 
-	if (alpha <= 0.0){
+	if (alpha <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): alpha <= 0", __func__);
 		return -1;
 	}
 
-	if (d <= 0){
+	if (d <= 0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): d <= 0", __func__);
 		return -1;
 	}
@@ -461,8 +459,7 @@ cl_double clprobdistGammaComplCDF_1(cl_double alpha, int d, cl_double x, clprobd
 	if (alpha >= 70.0) {
 		if (x >= alpha * clprobdistGammaXBIG)
 			return 0.0;
-	}
-	else {
+	} else {
 		if (x >= clprobdistGammaXBIGM)
 			return 0.0;
 	}
@@ -484,7 +481,7 @@ cl_double clprobdistGammaComplCDF_1(cl_double alpha, int d, cl_double x, clprobd
 	cl_double RENORM = 1.0E100;
 	cl_double R, dif;
 	int i;
-	cl_double factor = exp(alpha*log(x) - x - lgamma(alpha));
+	cl_double factor = exp(alpha * log(x) - x - lgamma(alpha));
 
 	cl_double A = 1.0 - alpha;
 	cl_double B = A + x + 1.0;
@@ -504,8 +501,8 @@ cl_double clprobdistGammaComplCDF_1(cl_double alpha, int d, cl_double x, clprobd
 		if (V[5] != 0.0) {
 			R = V[4] / V[5];
 			dif = fabs(res - R);
-			if (dif <= EPS*R){
-				return factor*res;
+			if (dif <= EPS * R) {
+				return factor * res;
 			}
 
 			res = R;
@@ -519,17 +516,17 @@ cl_double clprobdistGammaComplCDF_1(cl_double alpha, int d, cl_double x, clprobd
 	} while (CL_TRUE);
 }
 cl_double clprobdistGammaComplCDF(cl_double alpha, cl_double lambda, int d, cl_double x, clprobdistStatus* err) {
-	return clprobdistGammaComplCDF_1(alpha, d, lambda*x, err);
+	return clprobdistGammaComplCDF_1(alpha, d, lambda * x, err);
 }
 
-cl_double clprobdistGammaCDF_1(cl_double alpha, int d, cl_double x, clprobdistStatus* err){
+cl_double clprobdistGammaCDF_1(cl_double alpha, int d, cl_double x, clprobdistStatus* err) {
 	cl_double ret = clprobdistGammaCDF_2(alpha, d, x, err);
 	if (ret < 0.0)
 		return 1.0 - clprobdistGammaComplCDF_1(alpha, d, x, err);
 	return ret;
 }
 
-cl_double clprobdistGammaCDF_2(cl_double alpha, int d, cl_double x, clprobdistStatus* err){
+cl_double clprobdistGammaCDF_2(cl_double alpha, int d, cl_double x, clprobdistStatus* err) {
 	if (err) *err = CLPROBDIST_SUCCESS;
 
 	if (x <= 0.0)
@@ -541,8 +538,7 @@ cl_double clprobdistGammaCDF_2(cl_double alpha, int d, cl_double x, clprobdistSt
 	if (alpha > 10.0) {
 		if (x > alpha * 10.0)
 			return 1.0;
-	}
-	else {
+	} else {
 		if (x > clprobdistGammaXBIG)
 			return 1.0;
 	}
@@ -557,7 +553,7 @@ cl_double clprobdistGammaCDF_2(cl_double alpha, int d, cl_double x, clprobdistSt
 
 	if (x <= 1.0 || x < alpha) {
 		cl_double factor, z, rn, term;
-		factor = exp(alpha*log(x) - x - lgamma(alpha));
+		factor = exp(alpha * log(x) - x - lgamma(alpha));
 		cl_double EPS = clprobdistGammaEPSARRAY[d];
 		z = 1.0;
 		term = 1.0;
@@ -567,7 +563,7 @@ cl_double clprobdistGammaCDF_2(cl_double alpha, int d, cl_double x, clprobdistSt
 			term *= x / rn;
 			z += term;
 		} while (term >= EPS * z);
-		return z*factor / alpha;
+		return z * factor / alpha;
 	}
 
 	// this is a workaround to avoid birecusivity on GPU's
@@ -576,23 +572,20 @@ cl_double clprobdistGammaCDF_2(cl_double alpha, int d, cl_double x, clprobdistSt
 }
 
 // Dynamic functions
-cl_double clprobdistGammaCDF(cl_double alpha, cl_double lambda, int d, cl_double x, clprobdistStatus* err){
-	return clprobdistGammaCDF_1(alpha, d, lambda*x, err);
+cl_double clprobdistGammaCDF(cl_double alpha, cl_double lambda, int d, cl_double x, clprobdistStatus* err) {
+	return clprobdistGammaCDF_1(alpha, d, lambda * x, err);
 }
 
-cl_double clprobdistGammaCDFWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* distObj, cl_double x, clprobdistStatus* err)
-{
-	return clprobdistGammaCDF(distObj->params.alpha,distObj->params.lambda,distObj->contDistObj.decPrec,x,err);
+cl_double clprobdistGammaCDFWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* distObj, cl_double x, clprobdistStatus* err) {
+	return clprobdistGammaCDF(distObj->params.alpha, distObj->params.lambda, distObj->contDistObj.decPrec, x, err);
 
 }
 
-cl_double clprobdistGammaInverseCDF(cl_double alpha, cl_double lambda, int d, cl_double u, clprobdistStatus* err)
-{
+cl_double clprobdistGammaInverseCDF(cl_double alpha, cl_double lambda, int d, cl_double u, clprobdistStatus* err) {
 
 	return clprobdistGammaInverseCDF_1(alpha, d, u, err) / lambda;
 }
-cl_double clprobdistGammaInverseCDFWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* distObj, cl_double u, clprobdistStatus* err)
-{
+cl_double clprobdistGammaInverseCDFWithObject(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* distObj, cl_double u, clprobdistStatus* err) {
 	return clprobdistGammaInverseCDF_1(distObj->params.alpha, distObj->contDistObj.decPrec, u, err) / distObj->params.lambda;
 }
 
@@ -629,9 +622,13 @@ cl_double clprobdistGammaGetAlpha(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamm
 	return distObj->params.alpha;
 }
 cl_double clprobdistGammaGetLambda(_CLPROBDIST_GAMMA_OBJ_MEM const clprobdistGamma* distObj, clprobdistStatus* err) {
-	
+
 	if (err) *err = CLPROBDIST_SUCCESS;
 	return distObj->params.lambda;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

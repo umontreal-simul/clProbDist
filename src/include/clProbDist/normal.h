@@ -36,6 +36,11 @@
 #include "clProbDist/clProbDist.h"
 #include "clProbDist/continuous.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /*! @brief Normal distribution object [**device**]
  *
  *  A structure that represents a normal distribution object.
@@ -246,6 +251,8 @@ cl_double clprobdistNormalStdDeviation(cl_double mu, cl_double sigma, clprobdist
 
 /*! @} */
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif

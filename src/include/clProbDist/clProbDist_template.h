@@ -30,6 +30,10 @@
 
 #include <clProbDist.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /*! @file clProbDist_template.h
  *  @brief Template of the API for specific probability distributions (not to be included as is!)
@@ -66,7 +70,7 @@
  *
  *  ### Host and Device APIs
  *
- *  The functions described here are all available on the host, in all implementations, 
+ *  The functions described here are all available on the host, in all implementations,
  *  unless specified otherwise.  Only some of the functions and types are also
  *  available on the device in addition to the host;  they are tagged with
  *  [**device**].
@@ -245,7 +249,7 @@ cl_double clprobdistStdDeviationWithObject(const clprobdistObject* dist, clprobd
  *
  *  Copy the distribution object @c srcDist located in global memory into the
  *  buffer @c destDist located in local or private memory.
- *  This function *does not* allocate memory for the distribution object, 
+ *  This function *does not* allocate memory for the distribution object,
  *  it assumes that this has already been done.
  *
  *  When the distribution API is configured to use distribution objects stored
@@ -278,7 +282,7 @@ clprobdistStatus clprobdistCopyOverFromGlobal(_CLPROBDIST_<DIST>_OBJ_MEM clprobd
  *  They take the distribution parameters as their first arguments
  *  (see the description of \ref DIST_PARAMS in \ref distributions).
  *  They cannot take advantage of precomputed values for the distributions.
- * 
+ *
  *  @{
  */
 
@@ -388,6 +392,10 @@ cl_double clprobdistVariance(DIST_PARAMS, clprobdistStatus* err);
 cl_double clprobdistStdDeviation(DIST_PARAMS, clprobdistStatus* err);
 
 /*! @} */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CLPROBDIST_H *
 * vim: syntax=c.doxygen spell spelllang=en fdm=syntax fdls=0 expandtab

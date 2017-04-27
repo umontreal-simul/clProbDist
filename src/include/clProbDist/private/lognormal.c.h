@@ -30,6 +30,11 @@
 #define _CLPROBDIST_LOGNORMAL_OBJ_MEM
 #endif
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 struct _clprobdistlLognormal {
 	clprobdistContinuous contDistObj;
 	cl_double mu;
@@ -47,7 +52,7 @@ constant const cl_double clprobdistLognormalXBIGM = 1000.0;
 //***********************************************************************
 
 cl_double clprobdistLognormalDensity(cl_double mu, cl_double sigma, cl_double x, clprobdistStatus* err) {
-	if (sigma <= 0.0){
+	if (sigma <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): sigma <= 0", __func__);
 		return 0;
 	}
@@ -56,11 +61,11 @@ cl_double clprobdistLognormalDensity(cl_double mu, cl_double sigma, cl_double x,
 
 	cl_double diff = log(x) - mu;
 
-	return exp(-diff*diff / (2 * sigma*sigma)) / (sqrt(2 * clprobdistLognormalPI)*sigma*x);
+	return exp(-diff * diff / (2 * sigma * sigma)) / (sqrt(2 * clprobdistLognormalPI) * sigma * x);
 }
 
 cl_double clprobdistLognormalCDF(cl_double mu, cl_double sigma, cl_double x, clprobdistStatus* err) {
-	if (sigma <= 0.0){
+	if (sigma <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): sigma <= 0", __func__);
 		return 0;
 	}
@@ -70,7 +75,7 @@ cl_double clprobdistLognormalCDF(cl_double mu, cl_double sigma, cl_double x, clp
 	return clprobdistStdNormalCDF((log(x) - mu) / sigma, err);
 }
 cl_double clprobdistLognormalComplCDF(cl_double mu, cl_double sigma, cl_double x, clprobdistStatus* err) {
-	if (sigma <= 0.0){
+	if (sigma <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): sigma <= 0", __func__);
 		return 0;
 	}
@@ -81,12 +86,12 @@ cl_double clprobdistLognormalComplCDF(cl_double mu, cl_double sigma, cl_double x
 cl_double clprobdistLognormalInverseCDF(cl_double mu, cl_double sigma, cl_double u, clprobdistStatus* err) {
 	cl_double t, v;
 
-	if (sigma <= 0.0){
+	if (sigma <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): sigma <= 0", __func__);
 		return 0;
 	}
 
-	if (u > 1.0 || u < 0.0){
+	if (u > 1.0 || u < 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): u is not in [0, 1]", __func__);
 		return -1;
 	}
@@ -102,13 +107,13 @@ cl_double clprobdistLognormalInverseCDF(cl_double mu, cl_double sigma, cl_double
 
 	if ((t >= clprobdistLognormalXBIG) || (v >= DBL_MAX_EXP * clprobdistLognormalLN2))
 		return DBL_MAX;
-	if ((t <= -clprobdistLognormalXBIG) || (v <= -DBL_MAX_EXP* clprobdistLognormalLN2))
+	if ((t <= -clprobdistLognormalXBIG) || (v <= -DBL_MAX_EXP * clprobdistLognormalLN2))
 		return 0.0;
 
 	return exp(v);
 }
 cl_double clprobdistLognormalMean(cl_double mu, cl_double sigma, clprobdistStatus* err) {
-	if (sigma <= 0.0){
+	if (sigma <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): sigma <= 0", __func__);
 		return 0;
 	}
@@ -116,7 +121,7 @@ cl_double clprobdistLognormalMean(cl_double mu, cl_double sigma, clprobdistStatu
 	return (exp(mu + (sigma * sigma) / 2.0));
 }
 cl_double clprobdistLognormalVariance(cl_double mu, cl_double sigma, clprobdistStatus* err) {
-	if (sigma <= 0.0){
+	if (sigma <= 0.0) {
 		if (err) *err = clprobdistSetErrorString(CLPROBDIST_INVALID_VALUE, "%s(): sigma <= 0", __func__);
 		return 0;
 	}
@@ -124,7 +129,7 @@ cl_double clprobdistLognormalVariance(cl_double mu, cl_double sigma, clprobdistS
 	return (exp(2.0 * mu + sigma * sigma) * (exp(sigma * sigma) - 1.0));
 }
 cl_double clprobdistLognormalStdDeviation(cl_double mu, cl_double sigma, clprobdistStatus* err) {
-	
+
 	return sqrt(clprobdistLognormalVariance(mu, sigma, err));
 }
 
@@ -169,4 +174,9 @@ cl_double clprobdistLognormalGetSigma(_CLPROBDIST_LOGNORMAL_OBJ_MEM const clprob
 	if (err) *err = CLPROBDIST_SUCCESS;
 	return dist->sigma;
 }
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
